@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: wxchat-cloud-server
+  datasource:
+    url: jdbc:mysql://localhost:3306/test?useOldAliasMetadataBehavior=true&useSSL=false
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
+  kafka:
+    bootstrap-servers: 192.168.1.156:9092
+    consumer:
+      group-id: server_mash_store
+
+kafka-topics: server_mash_store
+mash-kafka:
+  inventory-topics: server_mash_inventory
+
+logging:
+  file: logs/${spring.application.name}.log
+  level:
+    root: info
+    org.springframework.jdbc.core.JdbcTemplate: debug
+    org.springframework.jdbc.core.StatementCreatorUtils: trace
