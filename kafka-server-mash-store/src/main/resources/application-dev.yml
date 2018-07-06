@@ -11,8 +11,8 @@ spring:
     consumer:
       group-id: server_mash_store
 
-kafka-topics: server_mash_store
 mash-kafka:
+  topics: server_mash_store
   inventory-topics: server_mash_inventory
 
 logging:
