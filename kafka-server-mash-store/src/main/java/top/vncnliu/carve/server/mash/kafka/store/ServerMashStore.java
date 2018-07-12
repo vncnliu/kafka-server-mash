@@ -1,18 +1,14 @@
 package top.vncnliu.carve.server.mash.kafka.store;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,17 +34,49 @@ public class ServerMashStore {
 
     public static ConcurrentHashMap<String,DeferredResult> requestHold = new ConcurrentHashMap<>();
 
-    @KafkaListener(topics = "${mash-kafka.topics}")
+    @KafkaListener(topicPartitions = { @TopicPartition(topic = "${mash-kafka.topics}", partitions = { "0", "1" })})
     public void processMessage(String content) {
-        try {
+        System.out.println("0,1||"+content);
+        /*try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(content);
             String requestKey = jsonNode.get("request_key").asText();
             requestHold.get(requestKey).setResult(content);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
+
+    @KafkaListener(topicPartitions = { @TopicPartition(topic = "${mash-kafka.topics}", partitions = { "1", "2" })})
+    public void processMessage2(String content) {
+        /*try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(content);
+            String requestKey = jsonNode.get("request_key").asText();
+            requestHold.get(requestKey).setResult(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+        System.out.println("1,2||"+content);
+    }
+
+/*
+    @KafkaListener(topics = {"${mash-kafka.topics}"})
+    public void processMessage3(String content) {
+        */
+/*try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(content);
+            String requestKey = jsonNode.get("request_key").asText();
+            requestHold.get(requestKey).setResult(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*//*
+
+        System.out.println("*||"+content);
+    }
+*/
+
 
     @Autowired
     private KafkaTemplate kafkaTemplate;
