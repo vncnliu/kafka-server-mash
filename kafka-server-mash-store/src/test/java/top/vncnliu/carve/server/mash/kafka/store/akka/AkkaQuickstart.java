@@ -22,8 +22,15 @@ public class AkkaQuickstart {
                     system.actorOf(PrinterA.props(), "printerActorA");
             final ActorRef printerActorB =
                     system.actorOf(PrinterB.props(), "printerActorB");
+            final ActorRef printerActorC =
+                    system.actorOf(PrinterC.props(), "printerActorC");
 
-            printerActorA.tell("hello", printerActorB);
+            //printerActorB.tell("hello i am b", printerActorA);
+
+            printerActorB.tell("hello i am a, i am wait", printerActorA);
+
+            printerActorC.tell("hello i am b, i am wait",printerActorB);
+
             /*final ActorRef howdyGreeter =
                     system.actorOf(Greeter.props("Howdy", printerActor), "howdyGreeter");
             final ActorRef helloGreeter =

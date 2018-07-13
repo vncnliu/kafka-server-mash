@@ -25,8 +25,11 @@ public class PrinterB extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(String.class, msg -> {
-                    System.out.println(getSender().toString());
-                    log.info("B======="+msg);
+                    //log.info(getSender().toString());
+                    log.info("b receive : {}"+msg);
+                    if(msg.contains("wait")){
+                        getSender().tell("return from b",getSelf());
+                    }
                 })
                 .build();
     }

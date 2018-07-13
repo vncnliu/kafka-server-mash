@@ -11,23 +11,25 @@ import akka.event.LoggingAdapter;
  * Description:
  */
 
-public class PrinterA extends AbstractActor {
+public class PrinterC extends AbstractActor {
     static public Props props() {
-        return Props.create(PrinterA.class, () -> new PrinterA());
+        return Props.create(PrinterC.class, () -> new PrinterC());
     }
 
     private LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
-    public PrinterA() {
+    public PrinterC() {
     }
 
     @Override
     public Receive createReceive() {
         return receiveBuilder()
                 .match(String.class, msg -> {
-                    //System.out.println(getSender().toString());
-                    log.info("a receive : {}"+msg);
-                    //getSender().tell("return from a",getSelf());
+                    //log.info(getSender().toString());
+                    log.info("c receive : {}"+msg);
+                    if(msg.contains("wait")){
+                        getSender().tell("return from c",getSelf());
+                    }
                 })
                 .build();
     }
