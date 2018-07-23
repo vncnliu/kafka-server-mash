@@ -2,10 +2,14 @@ package top.vncnliu.carve.server.mash.kafka.store.akka;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.japi.Function;
+import akka.pattern.Patterns;
+import akka.stream.actor.ActorPublisherMessage;
+import scala.concurrent.Future;
 
-import java.io.IOException;
-import top.vncnliu.carve.server.mash.kafka.store.akka.Greeter.Greet;
-import top.vncnliu.carve.server.mash.kafka.store.akka.Greeter.WhoToGreet;
+import java.util.concurrent.CompletableFuture;
+import static akka.pattern.PatternsCS.ask;
+import static akka.pattern.PatternsCS.askWithReplyTo;
 
 /**
  * User: liuyq
@@ -24,6 +28,10 @@ public class AkkaQuickstart {
                     system.actorOf(PrinterB.props(), "printerActorB");
             final ActorRef printerActorC =
                     system.actorOf(PrinterC.props(), "printerActorC");
+
+
+            CompletableFuture<Object> future1 =
+                    ask(printerActor, "request", 1000).toCompletableFuture();
 
             //printerActorB.tell("hello i am b", printerActorA);
 

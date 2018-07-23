@@ -1,6 +1,7 @@
 package top.vncnliu.carve.server.mash.kafka.store.akka;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -37,6 +38,9 @@ public class Printer extends AbstractActor {
                 })
                 .match(String.class, msg -> {
                     log.info(msg);
+                })
+                .match(TestMessage.class, msg -> {
+                    getSender().tell("test",self());
                 })
                 .build();
     }
