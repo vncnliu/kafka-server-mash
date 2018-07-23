@@ -3,6 +3,7 @@ package top.vncnliu.carve.server.mash.kafka.store;
 import com.alibaba.fastjson.JSON;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CompletableFuture;
@@ -51,50 +52,17 @@ public class CommonTest {
     public void testFuture() throws InterruptedException {
         new Thread(() -> {
             try {
-
                 EventBus eventBus = new EventBus();
                 eventBus.register(new BaseEventHandler());
-                CompletableFuture<String> future1 = new CompletableFuture<>();
-                eventBus.post(new BaseEvent(future1, "1"));
+                ExeEvent[] events = {new ExeEvent("1"),new ExeEvent("2"),new ExeEvent("3"),new ExeEvent("4")};
+                BakEvent[] bakEvents = {new BakEvent("1"),new BakEvent("2"),new BakEvent("3"),new BakEvent("4")};
+                CompletableFuture<String> future = new CompletableFuture<>();
 
-                CompletableFuture<String> future2 = future1.handle(new BiFunction<String, Throwable, String>() {
-                    @Override
-                    public String apply(String s, Throwable throwable) {
-                        try {
-                            CompletableFuture<String> tmp = new CompletableFuture<>();
-                            eventBus.post(new BaseEvent(tmp, s));
-                            return tmp.get();
-                        } catch (Exception e) {
-                            return "error";
-                        }
-                    }
-                });
+                for (int i = 0; i < events.length; i++) {
+                    future = future.handle(new TestBiFunc(eventBus, events[i], bakEvents[i]));
+                }
 
-                CompletableFuture<String> future3 = future2.handle(new BiFunction<String, Throwable, String>() {
-                    @Override
-                    public String apply(String s, Throwable throwable) {
-                        try {
-                            CompletableFuture<String> tmp = new CompletableFuture<>();
-                            eventBus.post(new BaseEvent(tmp, s));
-                            return tmp.get();
-                        } catch (Exception e) {
-                            return "error";
-                        }
-                    }
-                });
-
-                CompletableFuture<String> future4 = future3.handle(new BiFunction<String, Throwable, String>() {
-                    @Override
-                    public String apply(String s, Throwable throwable) {
-                        try {
-                            CompletableFuture<String> tmp = new CompletableFuture<>();
-                            eventBus.post(new BaseEvent(tmp, s));
-                            return tmp.get();
-                        } catch (Exception e) {
-                            return "error";
-                        }
-                    }
-                });
+                future.complete("begin");
 
                 /*CompletableFuture<String> future2 = future1.thenCompose(o -> {
                     CompletableFuture<String> tmp = new CompletableFuture<>();
@@ -161,6 +129,38 @@ public class CommonTest {
         //future1.complete("exe 1");
     }
 
+    class ExeEvent {
+        private String param;
+
+        public ExeEvent(String param) {
+            this.param = param;
+        }
+
+        public String getParam() {
+            return param;
+        }
+
+        public void setParam(String param) {
+            this.param = param;
+        }
+    }
+
+    class BakEvent {
+        private String param;
+
+        public BakEvent(String param) {
+            this.param = param;
+        }
+
+        public String getParam() {
+            return param;
+        }
+
+        public void setParam(String param) {
+            this.param = param;
+        }
+    }
+
     class BaseEvent {
         private CompletableFuture<String> future1;
         private String param;
@@ -197,4 +197,36 @@ public class CommonTest {
             }
         }
     }
+
+    class TestBiFunc implements BiFunction<String, Throwable, String> {
+
+        private EventBus eventBus;
+
+        private ExeEvent exeEvent;
+
+        private BakEvent bakEvent;
+
+        public TestBiFunc(EventBus eventBus, ExeEvent exeEvent, BakEvent bakEvent) {
+            this.eventBus = eventBus;
+            this.exeEvent = exeEvent;
+            this.bakEvent = bakEvent;
+        }
+
+        @Override
+        public String apply(String s, Throwable throwable) {
+            try {
+                if(Strings.isNotBlank(s)&&throwable!=null){
+                    CompletableFuture<String> tmp = new CompletableFuture<>();
+                    eventBus.post(new BaseEvent(tmp,exeEvent));
+                    return tmp.get();
+                } else {
+                    eventBus.post(bakEvent);
+                    return
+                }
+            } catch (Exception e) {
+                return "error";
+            }
+        }
+    }
+
 }
