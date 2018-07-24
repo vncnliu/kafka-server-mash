@@ -1,3 +1,4 @@
+/*
 package top.vncnliu.carve.server.mash.kafka.store;
 
 import com.alibaba.fastjson.JSON;
@@ -12,11 +13,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
+*/
 /**
  * User: liuyq
  * Date: 2018/7/23
  * Description:
- */
+ *//*
+
 public class CommonTest {
 
     @Test
@@ -64,21 +67,27 @@ public class CommonTest {
 
                 future.complete("begin");
 
-                /*CompletableFuture<String> future2 = future1.thenCompose(o -> {
+                */
+/*CompletableFuture<String> future2 = future1.thenCompose(o -> {
                     CompletableFuture<String> tmp = new CompletableFuture<>();
                     eventBus.post(new BaseEvent(tmp, o));
                     return tmp;
-                });*/
-                /*CompletableFuture<String> future3= future2.thenCompose(o -> {
+                });*//*
+
+                */
+/*CompletableFuture<String> future3= future2.thenCompose(o -> {
                     CompletableFuture<String> tmp = new CompletableFuture<>();
                     eventBus.post(new BaseEvent(tmp, o));
                     return tmp;
-                });*/
-                /*CompletableFuture<String> future4= future3.thenCompose(o -> {
+                });*//*
+
+                */
+/*CompletableFuture<String> future4= future3.thenCompose(o -> {
                     CompletableFuture<String> tmp = new CompletableFuture<>();
                     eventBus.post(new BaseEvent(tmp, o));
                     return tmp;
-                });*/
+                });*//*
+
 
                 //testCompleFuture(future1);
             } catch (Exception e){
@@ -230,3 +239,4 @@ public class CommonTest {
     }
 
 }
+*/
