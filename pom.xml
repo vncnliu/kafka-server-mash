@@ -12,6 +12,8 @@
         <module>kafka-server-mash-store</module>
         <module>kafka-server-mash-inventory</module>
         <module>kafka_server_mash_event</module>
+        <module>kafka_server_mash_tcp_server</module>
+        <module>kafka_server_mash_tcp_base</module>
     </modules>
 
     <parent>
@@ -63,6 +65,16 @@
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>5.0.3</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.1.26.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>3.6.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

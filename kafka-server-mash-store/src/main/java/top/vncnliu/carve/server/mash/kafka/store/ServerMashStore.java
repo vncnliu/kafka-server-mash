@@ -3,7 +3,9 @@ package top.vncnliu.carve.server.mash.kafka.store;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -21,6 +23,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,14 +38,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServerMashStore {
 
     public static void main(String[] args) {
-        //SpringApplication.run(ServerMashStore.class);
+        SpringApplication.run(ServerMashStore.class);
+        Map<String, Object> configs = new HashMap<String, Object>(); //参数
+        configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class);
         ContainerProperties containerProps = new ContainerProperties("topic1");
         containerProps.setGroupId("test");
         containerProps.setMessageListener((MessageListener<String, String>) data -> {
             System.out.println(data.value());
         });
         DefaultKafkaConsumerFactory<String, String> cf =
-                new DefaultKafkaConsumerFactory<>(new HashMap<>());
+                new DefaultKafkaConsumerFactory<>(configs);
         KafkaMessageListenerContainer<String, String> container =
                 new KafkaMessageListenerContainer<>(cf, containerProps);
         container.start();
@@ -50,31 +57,31 @@ public class ServerMashStore {
 
     public static ConcurrentHashMap<String,DeferredResult> requestHold = new ConcurrentHashMap<>();
 
-    @KafkaListener(topicPartitions = { @TopicPartition(topic = "${mash-kafka.topics}", partitions = { "0", "1" })})
+    /*@KafkaListener(topicPartitions = { @TopicPartition(topic = "${mash-kafka.topics}", partitions = { "0", "1" })})
     public void processMessage(String content) {
         System.out.println("0,1||"+content);
-        /*try {
+        *//*try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(content);
             String requestKey = jsonNode.get("request_key").asText();
             requestHold.get(requestKey).setResult(content);
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }*//*
     }
 
     @KafkaListener(topicPartitions = { @TopicPartition(topic = "${mash-kafka.topics}", partitions = { "1", "2" })})
     public void processMessage2(String content) {
-        /*try {
+        *//*try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(content);
             String requestKey = jsonNode.get("request_key").asText();
             requestHold.get(requestKey).setResult(content);
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }*//*
         System.out.println("1,2||"+content);
-    }
+    }*/
 
 /*
     @KafkaListener(topics = {"${mash-kafka.topics}"})
