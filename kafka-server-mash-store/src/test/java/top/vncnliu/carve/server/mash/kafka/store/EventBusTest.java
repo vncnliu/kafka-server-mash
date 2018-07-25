@@ -16,13 +16,17 @@ public class EventBusTest {
     void main(){
         EventBus eventBus = new EventBus();
         eventBus.register(new EvnetHandler());
-        eventBus.post(new TestEvent(1,"a"));
+        eventBus.post(new TestEvent2(1,"a"));
     }
 
     class EvnetHandler {
         @Subscribe
         public void dododo(TestEvent event){
             System.out.println(JSON.toJSONString(event));
+        }
+        @Subscribe
+        public void dododo(TestEvent2 event){
+            System.out.println("2"+JSON.toJSONString(event));
         }
     }
 
@@ -49,6 +53,13 @@ public class EventBusTest {
 
         public void setB(String b) {
             this.b = b;
+        }
+    }
+
+    class TestEvent2 extends TestEvent {
+
+        public TestEvent2(int a, String b) {
+            super(a, b);
         }
     }
 }

@@ -1,3 +1,4 @@
+/*
 package top.vncnliu.carve.server.mash.kafka.store;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,11 +13,13 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+*/
 /**
  * User: liuyq
  * Date: 2018/7/9
  * Description:
- */
+ *//*
+
 public class ChainTest {
 
     @Test
@@ -139,3 +142,4 @@ public class ChainTest {
         }
     }
 }
+*/

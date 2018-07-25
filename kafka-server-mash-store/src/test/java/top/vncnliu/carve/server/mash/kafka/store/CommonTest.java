@@ -5,12 +5,9 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import org.apache.logging.log4j.util.Strings;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFuture;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.BiFunction;
 
 */
@@ -22,69 +19,70 @@ import java.util.function.BiFunction;
 
 public class CommonTest {
 
-    @Test
-    public void testSc() throws InterruptedException {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(100);
-                //ExecutorService executorService = Executors.newFixedThreadPool(5);
-                //for (int i = 0; i < 10; i++) {
-                    scheduler.scheduleAtFixedRate(new TestWorker(),0,1,TimeUnit.SECONDS);
-                    //executorService.submit(new TestWorker());
-                //}
-            }
-        }).start();
-        Thread.sleep(1000000);
-    }
-
-    class TestWorker implements Runnable {
-
-        @Override
-        public void run() {
-            System.out.println("run");
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Test
+    @TestFuture
     public void testFuture() throws InterruptedException {
         new Thread(() -> {
             try {
                 EventBus eventBus = new EventBus();
                 eventBus.register(new BaseEventHandler());
-                ExeEvent[] events = {new ExeEvent("1"),new ExeEvent("2"),new ExeEvent("3"),new ExeEvent("4")};
+                ExeEvent[] exeEvents = {new ExeEvent("1"),new ExeEvent("2"),new ExeEvent("3"),new ExeEvent("4")};
                 BakEvent[] bakEvents = {new BakEvent("1"),new BakEvent("2"),new BakEvent("3"),new BakEvent("4")};
-                CompletableFuture<String> future = new CompletableFuture<>();
+                CompletableFuture<String> exeFuture = new CompletableFuture<>();
+                CompletableFuture<String> bakFuture = new CompletableFuture<>();
+                CompletableFuture<BaseStringEvent> testFuture1 = new CompletableFuture<>();
+                CompletableFuture<BaseStringEvent> testFuture2 = new CompletableFuture<>();
+                CompletableFuture<BaseStringEvent> testFuture3 = new CompletableFuture<>();
+                CompletableFuture<BaseStringEvent> testFuture4 = new CompletableFuture<>();
+                BaseStringEvent baseStringEvent1 = new BaseStringEvent(testFuture1,"1");
+                BaseStringEvent baseStringEvent2 = new BaseStringEvent(testFuture2,"1");
+                BaseStringEvent baseStringEvent3 = new BaseStringEvent(testFuture3,"1");
+                BaseStringEvent baseStringEvent4 = new BaseStringEvent(testFuture4,"1");
 
-                for (int i = 0; i < events.length; i++) {
-                    future = future.handle(new TestBiFunc(eventBus, events[i], bakEvents[i]));
+                testFuture.handle(new BiFunction<AbsMashEvent, Throwable, Object>() {
+                    @Override
+                    public AbsMashEvent apply(AbsMashEvent s, Throwable throwable) {
+                        eventBus.post(s);
+                        try {
+                            return s.future1.get();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+                });
+
+                for (int i = 0; i < exeEvents.length; i++) {
+                    testFuture1 = testFuture1.handle(new TestBiFunc2(eventBus,baseStringEvent2,bakEvents[0],bakFuture));
                 }
 
-                future.complete("begin");
+                */
+/*for (int i = 0; i < exeEvents.length; i++) {
+                    exeFuture = exeFuture.handle(new TestBiFunc2(eventBus, exeEvents[i], bakEvents[i],bakFuture));
+                }
+
+                exeFuture.complete("begin");*//*
+
 
                 */
 /*CompletableFuture<String> future2 = future1.thenCompose(o -> {
                     CompletableFuture<String> tmp = new CompletableFuture<>();
-                    eventBus.post(new BaseEvent(tmp, o));
+                    eventBus.post(new AbsMashEvent(tmp, o));
                     return tmp;
                 });*//*
 
                 */
 /*CompletableFuture<String> future3= future2.thenCompose(o -> {
                     CompletableFuture<String> tmp = new CompletableFuture<>();
-                    eventBus.post(new BaseEvent(tmp, o));
+                    eventBus.post(new AbsMashEvent(tmp, o));
                     return tmp;
                 });*//*
 
                 */
 /*CompletableFuture<String> future4= future3.thenCompose(o -> {
                     CompletableFuture<String> tmp = new CompletableFuture<>();
-                    eventBus.post(new BaseEvent(tmp, o));
+                    eventBus.post(new AbsMashEvent(tmp, o));
                     return tmp;
                 });*//*
 
@@ -170,20 +168,46 @@ public class CommonTest {
         }
     }
 
-    class BaseEvent {
-        private CompletableFuture<String> future1;
-        private String param;
+    class AbsMashEvent {
+        private CompletableFuture<AbsMashEvent> future1;
+        private ExeEvent param;
 
-        public BaseEvent(CompletableFuture<String> future1, String param) {
+        public AbsMashEvent(CompletableFuture<AbsMashEvent> future1, ExeEvent param) {
             this.future1 = future1;
             this.param = param;
         }
 
-        public CompletableFuture<String> getFuture1() {
+        public CompletableFuture<AbsMashEvent> getFuture1() {
             return future1;
         }
 
-        public void setFuture1(CompletableFuture<String> future1) {
+        public void setFuture1(CompletableFuture<AbsMashEvent> future1) {
+            this.future1 = future1;
+        }
+
+        public ExeEvent getParam() {
+            return param;
+        }
+
+        public void setParam(ExeEvent param) {
+            this.param = param;
+        }
+    }
+
+    class BaseStringEvent {
+        private CompletableFuture<BaseStringEvent> future1;
+        private String param;
+
+        public BaseStringEvent(CompletableFuture<BaseStringEvent> future1, String param) {
+            this.future1 = future1;
+            this.param = param;
+        }
+
+        public CompletableFuture<BaseStringEvent> getFuture1() {
+            return future1;
+        }
+
+        public void setFuture1(CompletableFuture<BaseStringEvent> future1) {
             this.future1 = future1;
         }
 
@@ -198,16 +222,19 @@ public class CommonTest {
 
     class BaseEventHandler {
         @Subscribe
-        public void test(BaseEvent baseEvent){
+        public void test(AbsMashEvent baseEvent){
             System.out.println(JSON.toJSONString(baseEvent));
-            if(baseEvent.getParam().equals("1")||true){
+            */
+/*if(baseEvent.getParam().equals("1")||true){
                 System.out.println("complete "+baseEvent.getParam());
                 baseEvent.getFuture1().complete(""+(Integer.parseInt(baseEvent.getParam())+1));
-            }
+            }*//*
+
         }
     }
 
-    class TestBiFunc implements BiFunction<String, Throwable, String> {
+    */
+/*class TestBiFunc implements BiFunction<String, Throwable, String> {
 
         private EventBus eventBus;
 
@@ -215,7 +242,71 @@ public class CommonTest {
 
         private BakEvent bakEvent;
 
-        public TestBiFunc(EventBus eventBus, ExeEvent exeEvent, BakEvent bakEvent) {
+        private CompletableFuture<String> bakFuture;
+
+        public TestBiFunc(EventBus eventBus, ExeEvent exeEvent, BakEvent bakEvent, CompletableFuture<String> bakFuture) {
+            this.eventBus = eventBus;
+            this.exeEvent = exeEvent;
+            this.bakEvent = bakEvent;
+            this.bakFuture = bakFuture;
+        }
+
+        @Override
+        public String apply(String s, Throwable throwable) {
+            try {
+                if(Strings.isNotBlank(s)&&throwable!=null){
+                    CompletableFuture<String> tmp = new CompletableFuture<>();
+                    eventBus.post(new AbsMashEvent(tmp,exeEvent));
+                    return tmp.get();
+                } else {
+                    eventBus.post(bakEvent);
+                    return "";
+                }
+            } catch (Exception e) {
+                return "error";
+            }
+        }
+    }*//*
+
+
+    class TestBiFunc2 implements BiFunction<BaseStringEvent, Throwable, BaseStringEvent> {
+
+        private EventBus eventBus;
+
+        private BaseStringEvent exeEvent;
+
+        private BakEvent bakEvent;
+
+        private CompletableFuture<String> bakFuture;
+
+        public TestBiFunc2(EventBus eventBus, BaseStringEvent exeEvent, BakEvent bakEvent, CompletableFuture<String> bakFuture) {
+            this.eventBus = eventBus;
+            this.exeEvent = exeEvent;
+            this.bakEvent = bakEvent;
+            this.bakFuture = bakFuture;
+        }
+
+        @Override
+        public BaseStringEvent apply(BaseStringEvent s, Throwable throwable) {
+            try {
+                eventBus.post(s);
+                return s.getFuture1().get();
+            } catch (Exception e) {
+                return null;
+            }
+        }
+    }
+
+    */
+/*class TestBiFuncBak implements BiFunction<String, Throwable, String> {
+
+        private EventBus eventBus;
+
+        private ExeEvent exeEvent;
+
+        private BakEvent bakEvent;
+
+        public TestBiFuncBak(EventBus eventBus, ExeEvent exeEvent, BakEvent bakEvent) {
             this.eventBus = eventBus;
             this.exeEvent = exeEvent;
             this.bakEvent = bakEvent;
@@ -226,17 +317,15 @@ public class CommonTest {
             try {
                 if(Strings.isNotBlank(s)&&throwable!=null){
                     CompletableFuture<String> tmp = new CompletableFuture<>();
-                    eventBus.post(new BaseEvent(tmp,exeEvent));
+                    eventBus.post(new AbsMashEvent(tmp,exeEvent));
                     return tmp.get();
-                } else {
-                    eventBus.post(bakEvent);
-                    return
                 }
             } catch (Exception e) {
                 return "error";
             }
         }
-    }
+    }*//*
+
 
 }
 */

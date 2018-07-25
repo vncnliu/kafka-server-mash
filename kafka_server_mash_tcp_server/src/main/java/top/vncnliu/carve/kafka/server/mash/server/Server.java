@@ -36,7 +36,7 @@ public class Server {
                     .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                         @Override
                         public void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(new ProtobufDecoder());
+                            //ch.pipeline().addLast(new ProtobufDecoder());
                             ch.pipeline().addLast(new CustomizeChannelOutboundHandler());
                         }
                     })
