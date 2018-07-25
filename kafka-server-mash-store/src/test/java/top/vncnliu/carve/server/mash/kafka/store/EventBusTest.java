@@ -13,10 +13,23 @@ import org.junit.jupiter.api.Test;
 public class EventBusTest {
 
     @Test
-    void main(){
+    void main() throws InterruptedException {
         EventBus eventBus = new EventBus();
         eventBus.register(new EvnetHandler());
-        eventBus.post(new TestEvent2(1,"a"));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                eventBus.post(new TestEvent2(1,"a"));
+            }
+        }).start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                eventBus.post(new TestEvent2(1,"a"));
+            }
+        }).start();
+
+        Thread.sleep(1000);
     }
 
     class EvnetHandler {

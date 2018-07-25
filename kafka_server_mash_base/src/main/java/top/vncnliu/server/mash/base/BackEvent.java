@@ -1,8 +1,7 @@
-package top.vncnliu.carve.server.mash.kafka.store.chain;
+package top.vncnliu.server.mash.base;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import top.vncnliu.server.mash.base.AbsMashEvent;
 
 /**
  * User: liuyq

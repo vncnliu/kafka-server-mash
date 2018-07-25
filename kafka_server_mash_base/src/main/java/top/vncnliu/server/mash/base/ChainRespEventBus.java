@@ -16,13 +16,15 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class ChainRespEventBus {
 
-    private EventBus eventBus;
+    private EventBus exeEventBus;
+    private EventBus bakEventBus;
 
-    public ChainRespEventBus(EventBus eventBus) {
-        this.eventBus = eventBus;
+    public ChainRespEventBus(EventBus exeEventBus, EventBus bakEventBus) {
+        this.exeEventBus = exeEventBus;
+        this.bakEventBus = bakEventBus;
     }
 
-    public MashResp exeEvents(AbsMashEvent[] exeEvents,AbsMashEvent[] bakEvents) throws ExecutionException, InterruptedException {
+    public MashResp exeEvents(AbsMashEvent[] exeEvents, AbsMashEvent[] bakEvents) throws ExecutionException, InterruptedException {
 
         CompletableFuture<MashResp> completableFuture = new CompletableFuture<>();
 
@@ -47,7 +49,7 @@ public class ChainRespEventBus {
                     }
                 }else {
                     if(next!=null){
-                        eventBus.post(next.setContext(mashResp));
+                        exeEventBus.post(next.setContext(mashResp));
                         if(bak!=null){
                             backEvents.add(bak);
                         }
@@ -63,7 +65,7 @@ public class ChainRespEventBus {
             });
         }
 
-        eventBus.post(exeEvents[0]);
+        exeEventBus.post(exeEvents[0]);
 
         return completableFuture.get();
     }
@@ -83,12 +85,12 @@ public class ChainRespEventBus {
             }
             now.getRespFuture().thenAccept(mashResp -> {
                 if(next!=null){
-                    eventBus.post(next);
+                    bakEventBus.post(next);
                 }
             });
         }
 
-        eventBus.post(bakEvents.get(bakEvents.size()-1));
+        bakEventBus.post(bakEvents.get(bakEvents.size()-1));
         try {
             assert end != null;
             return end.getRespFuture().get();

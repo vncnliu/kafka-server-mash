@@ -2,8 +2,10 @@ package top.vncnliu.carve.server.mash.kafka.store.chain;
 
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.Subscribe;
+import top.vncnliu.server.mash.base.BackEvent;
 import top.vncnliu.server.mash.base.Constant;
 import top.vncnliu.server.mash.base.MashResp;
+import top.vncnliu.server.mash.base.TestEvent;
 
 /**
  * User: liuyq
@@ -40,5 +42,9 @@ class TestEventHandler {
     @Subscribe
     public void baseHandle(DeadEvent baseEvent) {
         System.out.println("DeadEvent handler ");
+    }
+    @Subscribe
+    public void baseHandle(TestEvent baseEvent) {
+        System.out.println("TestEvent handler ");
     }
 }
