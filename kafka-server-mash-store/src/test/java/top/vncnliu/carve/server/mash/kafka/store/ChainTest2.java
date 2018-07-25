@@ -1,7 +1,7 @@
 package top.vncnliu.carve.server.mash.kafka.store;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+import com.google.common.selfeventbus.EventBus;
+import com.google.common.selfeventbus.Subscribe;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 
@@ -111,6 +111,7 @@ public class ChainTest2 {
                     System.out.println("accept "+o);
                     if(o.equals("fail")){
                         exeBakEvents(backEvent);
+                        System.out.println("end exe bak");
                     }else {
                         eventBus.post(next);
                         backEvent.add(new BaseEvent("bak"+o,new CompletableFuture()));
@@ -125,9 +126,10 @@ public class ChainTest2 {
 
     Object exeBakEvents(List<BaseEvent> baseEvents) {
 
+        System.out.println("begin exe bak");
         BaseEvent end = new BaseEvent("end",new CompletableFuture());
 
-        for (int i = baseEvents.size()-1; i >= 0; i--) {
+        /*for (int i = baseEvents.size()-1; i >= 0; i--) {
             BaseEvent now = baseEvents.get(i);
             BaseEvent next;
             if(i==0){
@@ -141,9 +143,10 @@ public class ChainTest2 {
                     eventBus.post(next);
                 }
             });
-        }
+        }*/
 
-        eventBus.post(baseEvents.get(baseEvents.size()-1));
+        eventBus.post(end);
+        System.out.println("after post ");
         try {
             return end.completableFuture.get();
         } catch (InterruptedException e) {
@@ -178,6 +181,7 @@ public class ChainTest2 {
             }else {
                 baseEvent.completableFuture.complete(baseEvent.params);
             }
+            System.out.println("comole end");
             //baseEvent.completableFuture.complete(baseEvent.params);
 
         }

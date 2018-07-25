@@ -101,6 +101,7 @@ abstract class Dispatcher {
       queueForThread.offer(new Event(event, subscribers));
 
       if (!dispatching.get()) {
+        System.out.println("disp get success");
         dispatching.set(true);
         try {
           Event nextEvent;
@@ -108,7 +109,9 @@ abstract class Dispatcher {
             while (nextEvent.subscribers.hasNext()) {
               nextEvent.subscribers.next().dispatchEvent(nextEvent.event);
             }
+            System.out.println("subscribers end");
           }
+          System.out.println("query end");
         } finally {
           dispatching.remove();
           queue.remove();
