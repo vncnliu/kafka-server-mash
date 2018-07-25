@@ -3,7 +3,6 @@ package top.vncnliu.carve.server.mash.kafka.store.chain;
 import com.google.common.eventbus.EventBus;
 import org.junit.jupiter.api.Test;
 import top.vncnliu.server.mash.base.AbsMashEvent;
-import top.vncnliu.server.mash.base.BaseEvent;
 import top.vncnliu.server.mash.base.ChainRespEventBus;
 
 import java.util.concurrent.ExecutionException;
@@ -24,15 +23,18 @@ public class TestFuture {
                     EventBus eventBus = new EventBus();
                     eventBus.register(new TestEventHandler());
                     ChainRespEventBus chainRespEventBus = new ChainRespEventBus(eventBus);
+                    eventBus.post(new BackEvent(1111));
                     Object result = chainRespEventBus.exeEvents(
                             new AbsMashEvent[]{
-                            new BaseEvent(),
-                            new CashEvent(),
-                            new BaseEvent()},
+                                new BaseEvent(),
+                                new BaseEvent(),
+                                new CashEvent()
+                            },
                             new AbsMashEvent[]{
-                            null,
-                            null,
-                            null});
+                                new BackEvent(1),
+                                new BackEvent(2),
+                                new BackEvent(3)
+                            });
                     System.out.println("result:"+result);
                 } catch (ExecutionException e) {
                     e.printStackTrace();
@@ -42,6 +44,6 @@ public class TestFuture {
             }
         }).start();
 
-        Thread.sleep(1000);
+        Thread.sleep(100000);
     }
 }

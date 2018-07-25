@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -23,7 +24,7 @@ public class ChainRespEventBus {
 
     public MashResp exeEvents(AbsMashEvent[] exeEvents,AbsMashEvent[] bakEvents) throws ExecutionException, InterruptedException {
 
-        AbsMashEvent end=null;
+        CompletableFuture<MashResp> completableFuture = new CompletableFuture<>();
 
         List<AbsMashEvent> backEvents = new ArrayList<>();
 
@@ -36,16 +37,26 @@ public class ChainRespEventBus {
             }else {
                 next=exeEvents[i+1];
             }
-            end = now;
             now.getRespFuture().thenAccept(mashResp -> {
                 log.debug("receive complete:{}",mashResp);
                 if(mashResp.getCode()!=Constant.ErrorCode.SUCCESS){
-                    exeBakEvents(backEvents);
+                    if(backEvents.isEmpty()){
+                        completableFuture.complete(mashResp);
+                    }else {
+                        completableFuture.complete(exeBakEvents(backEvents));
+                    }
                 }else {
                     if(next!=null){
                         eventBus.post(next.setContext(mashResp));
                         if(bak!=null){
                             backEvents.add(bak);
+                        }
+                    }else {
+                        try {
+                            completableFuture.complete(now.getRespFuture().get());
+                        } catch (Exception e) {
+                            log.error("执行回滚事件异常："+e.getMessage(),e);
+                            completableFuture.complete(new MashResp(Constant.ErrorCode.MASH_BAK_ERROR,e.getMessage()));
                         }
                     }
                 }
@@ -53,21 +64,22 @@ public class ChainRespEventBus {
         }
 
         eventBus.post(exeEvents[0]);
-        return end.getRespFuture().get();
+
+        return completableFuture.get();
     }
 
-    private MashResp exeBakEvents(List<AbsMashEvent> baseEvents) {
+    private MashResp exeBakEvents(List<AbsMashEvent> bakEvents) {
 
         AbsMashEvent end = null;
 
-        for (int i = baseEvents.size()-1; i >= 0; i--) {
-            AbsMashEvent now = baseEvents.get(i);
+        for (int i = bakEvents.size()-1; i >= 0; i--) {
+            AbsMashEvent now = bakEvents.get(i);
             end=now;
             AbsMashEvent next;
             if(i==0){
                 next=null;
             }else {
-                next=baseEvents.get(i-1);
+                next=bakEvents.get(i-1);
             }
             now.getRespFuture().thenAccept(mashResp -> {
                 if(next!=null){
@@ -76,8 +88,9 @@ public class ChainRespEventBus {
             });
         }
 
-        eventBus.post(baseEvents.get(baseEvents.size()-1));
+        eventBus.post(bakEvents.get(bakEvents.size()-1));
         try {
+            assert end != null;
             return end.getRespFuture().get();
         } catch (Exception e) {
             log.error("执行回滚事件异常："+e.getMessage(),e);

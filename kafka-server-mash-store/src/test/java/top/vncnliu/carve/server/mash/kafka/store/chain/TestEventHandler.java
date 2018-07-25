@@ -1,7 +1,7 @@
 package top.vncnliu.carve.server.mash.kafka.store.chain;
 
+import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.Subscribe;
-import top.vncnliu.server.mash.base.BaseEvent;
 import top.vncnliu.server.mash.base.Constant;
 import top.vncnliu.server.mash.base.MashResp;
 
@@ -14,7 +14,8 @@ class TestEventHandler {
     @Subscribe
     public void handleCash(CashEvent baseEvent) {
         System.out.println("CashEvent handler ");
-        baseEvent.getRespFuture().complete(new MashResp(Constant.ErrorCode.SUCCESS,"CashEvent"));
+        //System.out.println(baseEvent.getContext());
+        baseEvent.getRespFuture().complete(new MashResp(Constant.ErrorCode.ORDER_ERROR,"CashEvent"));
     }
     @Subscribe
     public void handleOrder(OrderEvent baseEvent) {
@@ -30,5 +31,14 @@ class TestEventHandler {
     public void baseHandle(BaseEvent baseEvent) {
         System.out.println("handler ");
         baseEvent.getRespFuture().complete(new MashResp(Constant.ErrorCode.SUCCESS,"base"));
+    }
+    @Subscribe
+    public void baseHandle(BackEvent baseEvent) {
+        System.out.println("BackEvent handler ");
+        baseEvent.getRespFuture().complete(new MashResp(Constant.ErrorCode.SUCCESS,"BackEvent "+baseEvent.getId()));
+    }
+    @Subscribe
+    public void baseHandle(DeadEvent baseEvent) {
+        System.out.println("DeadEvent handler ");
     }
 }

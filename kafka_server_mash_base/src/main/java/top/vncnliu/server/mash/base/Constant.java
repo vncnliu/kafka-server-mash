@@ -9,7 +9,8 @@ public class Constant {
 
     public enum ErrorCode {
         SUCCESS(0,"成功"),
-        MASH_BAK_ERROR(100001,"回滚事件异常");
+        MASH_BAK_ERROR(100001,"回滚事件异常"),
+        ORDER_ERROR(110001,"订单事件异常");
         private int code;
         private String msg;
 
